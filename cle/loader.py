@@ -60,7 +60,7 @@ class Loader:
 
     When reference is made to a dictionary of options, it requires a dictionary with zero or more of the following keys:
 
-    - backend :             "elf", "pe", "mach-o", "ida", "blob" : which loader backend to use
+    - backend :             "elf", "pe", "mach-o", "blob" : which loader backend to use
     - arch :                The archinfo.Arch object to use for the binary
     - base_addr :           The address to rebase the object at
     - entry_point :         The entry point to use for the object
@@ -104,12 +104,12 @@ class Loader:
 
         self.aslr = aslr
         self.page_size = page_size
-        self.memory = None
+        self.memory = None # type: Clemory
 
-        self.main_object = None
-        self._tls_object = None
-        self._kernel_object = None
-        self._extern_object = None
+        self.main_object = None # type: Backend
+        self._tls_object = None # type: TLSObject
+        self._kernel_object = None # type: KernelObject
+        self._extern_object = None # type: ExternObject
         self.shared_objects = OrderedDict()
         self.all_objects = []  # this list should always be sorted by min_addr
         self.requested_names = set()
@@ -477,7 +477,7 @@ class Loader:
                 n = next(i)
                 peeks.append((n, i))
         while peeks:
-            element = min(peeks, key=lambda x: x[0]) # if we don't do this it might crash on comparing iterators
+            element = min(peeks, key=lambda x: x[0].rebased_addr) # if we don't do this it might crash on comparing iterators
             n, i = element
             idx = peeks.index(element)
             yield n
