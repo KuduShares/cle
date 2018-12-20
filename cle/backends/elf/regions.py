@@ -33,6 +33,7 @@ class ELFSection(Section):
     SHF_ALLOC = 0x2
     SHF_EXECINSTR = 0x4
     SHF_STRINGS = 0x20
+    SHT_NULL = 'SHT_NULL'
 
     def __init__(self, readelf_sec, remap_offset=0):
         super(ELFSection, self).__init__(
@@ -55,6 +56,10 @@ class ELFSection(Section):
         return True
 
     @property
+    def is_active(self):
+        return self.type != self.SHT_NULL
+
+    @property
     def is_writable(self):
         return self.flags & self.SHF_WRITE != 0
 
@@ -69,3 +74,7 @@ class ELFSection(Section):
     @property
     def is_strings(self):
         return self.flags & self.SHF_STRINGS != 0
+
+    @property
+    def only_contains_uninitialized_data(self):
+        return self.type == "SHT_NOBITS"
